@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini-CLIの使い方</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.8;
+            color: #212529; /* Darker text color for better contrast */
+            background-color: #f8f9fa; /* Light gray background */
+            margin: 0;
+            padding: 1.5em;
+        }
+        .container {
+            max-width: 880px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 2em 3em;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: 1px solid #dee2e6;
+        }
+        h1, h2, h3 {
+            color: #0056b3; /* Stronger blue for headers */
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 0.4em;
+            margin-top: 1.5em;
+        }
+        h1 {
+            font-size: 2.8em;
+            text-align: center;
+            margin-bottom: 1em;
+        }
+        h2 {
+            font-size: 2.2em;
+        }
+        h3 {
+            font-size: 1.6em;
+            border-bottom: 1px solid #e9ecef;
+        }
+        p {
+            margin-bottom: 1.2em;
+        }
+        code {
+            background-color: #e9ecef; /* Light gray background for inline code */
+            color: #c7254e; /* Clear color for inline code */
+            padding: 0.2em 0.4em;
+            margin: 0;
+            font-size: 90%;
+            border-radius: 4px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        }
+        pre {
+            background-color: #f1f3f5; /* Safe light background for code blocks */
+            color: #212529; /* Dark text for code blocks */
+            padding: 1.2em;
+            border-radius: 6px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border: 1px solid #ced4da;
+            margin-top: 0.5em;
+        }
+        .example {
+            border-left: 5px solid #007bff;
+            padding: 1.5em;
+            margin: 2em 0;
+            background-color: #fcfdff;
+            border-radius: 0 8px 8px 0;
+        }
+        .example strong {
+            color: #0056b3;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gemini-CLI 使い方ガイド</h1>
+        <p>このドキュメントでは、Gemini-CLIの基本的な使い方と、具体的なコマンドの例を、内部的な動作の解説を交えて説明します。</p>
+
+        <h2>1. 基本的な対話</h2>
+        <p>Gemini-CLIには、自然言語で直接指示を出すことができます。</p>
+        <div class="example">
+            <p><strong>ユーザーの入力:</strong></p>
+            <pre><code>1 + 2</code></pre>
+            <p><strong>Geminiの応答:</strong></p>
+            <pre><code>3</code></pre>
+            <p><strong>解説:</strong><br>このような単純な質問には、ツールを使わずに直接回答します。</p>
+        </div>
+
+        <h2>2. ファイル操作</h2>
+        <p>ファイルの作成、読み取り、一覧表示などの操作が可能です。これらは<code>default_api</code>ツールセットを使って実行されます。</p>
+
+        <h3>ファイル一覧の表示</h3>
+        <div class="example">
+            <p><strong>ユーザーの入力:</strong></p>
+            <pre><code>list files here.</code></pre>
+            <p><strong>Geminiの内部動作 (TOOL):</strong></p>
+            <pre><code>print(default_api.list_directory(path = "."))</code></pre>
+            <p><strong>解説:</strong><br><code>list_directory</code>ツールを呼び出し、現在のディレクトリのファイルとフォルダの一覧を取得して表示します。</p>
+        </div>
+
+        <h3>ファイルの作成</h3>
+        <div class="example">
+            <p><strong>ユーザーの入力:</strong></p>
+            <pre><code>ファイル名を「test.txt」、内容は「これはテストです」として作成してください。</code></pre>
+            <p><strong>Geminiの内部動作 (TOOL):</strong></p>
+            <pre><code>print(default_api.write_file(file_path="C:\gemini\workspace\test.txt", content="これはテストです"))</code></pre>
+            <p><strong>解説:</strong><br><code>write_file</code>ツールを使い、指定されたパスに指定された内容のファイルを作成します。</p>
+        </div>
+
+        <h2>3. コードの検索と編集</h2>
+        <p>プロジェクト内のコードを検索したり、特定の箇所を編集したりできます。</p>
+
+        <h3>ファイル内コンテンツの検索</h3>
+        <div class="example">
+            <p><strong>ユーザーの入力:</strong></p>
+            <pre><code>すべての.htmlファイルから "container" という単語を検索してください。</code></pre>
+            <p><strong>Geminiの内部動作 (TOOL):</strong></p>
+            <pre><code>print(default_api.search_file_content(pattern="container", include="**/*.html"))</code></pre>
+            <p><strong>解説:</strong><br><code>search_file_content</code>ツールを使い、正規表現パターンに一致する箇所をファイルから検索します。<code>include</code>で対象ファイルを絞り込めます。</p>
+        </div>
+
+        <h3>コードの置換</h3>
+        <div class="example">
+            <p><strong>ユーザーの入力:</strong></p>
+            <pre><code>Readme.htmlのh1タイトルを「Gemini-CLI 完全ガイド」に変更してください。</code></pre>
+            <p><strong>Geminiの内部動作 (TOOL):</strong></p>
+            <pre><code>print(default_api.replace(
+    file_path="C:\gemini\workspace\Readme.html",
+    old_string="&lt;h1&gt;Gemini-CLI 使い方ガイド&lt;/h1&gt;",
+    new_string="&lt;h1&gt;Gemini-CLI 完全ガイド&lt;/h1&gt;"
+))</code></pre>
+            <p><strong>解説:</strong><br><code>replace</code>ツールは、ファイル内の特定の文字列(<code>old_string</code>)を新しい文字列(<code>new_string</code>)に置き換えます。正確な置換のために、変更箇所の完全な文字列を指定する必要があります。</p>
+        </div>
+
+        <h2>4. コマンドの実行</h2>
+        <p><code>run_shell_command</code> を使って、任意のシェルコマンドを実行できます。</p>
+        <div class="example">
+            <p><strong>ユーザーの入力:</strong></p>
+            <pre><code>npm install a</code></pre>
+            <p><strong>Geminiの内部動作 (TOOL):</strong></p>
+            <pre><code>print(default_api.run_shell_command(command="npm install a", description="Running `npm install a`"))</code></pre>
+            <p><strong>解説:</strong><br><code>run_shell_command</code>ツールは、OSのシェルを通じてコマンドを実行します。これにより、ライブラリのインストール、テスト、ビルド、サーバーの起動などが可能になります。</p>
+        </div>
+    </div>
+</body>
+</html>
